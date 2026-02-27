@@ -185,16 +185,6 @@ const JobListing = () => {
                     </div>
                 )}
             </section>
-
-            {/* EMERGENCY CONTACT BUTTON */}
-            <div className="mt-10">
-                <button
-                    className="bg-red-200 text-red-800 font-medium py-2 px-4 rounded hover:bg-red-300 transition"
-                    onClick={() => navigate('/emergency-contact')}
-                >
-                    Emergency Contact
-                </button>
-            </div>
         </div>
     )
 }
