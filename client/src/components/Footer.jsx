@@ -64,7 +64,7 @@ const Footer = () => {
                </li>
                <li className="flex gap-3">
                  <span className="text-blue-500">📞</span>
-                 <span>+1 (555) 123-4567</span>
+                 <span>+880 1000000000</span>
                </li>
                <li className="flex gap-3">
                  <span className="text-blue-500">✉️</span>
@@ -76,7 +76,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-slate-900 pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-medium uppercase tracking-widest text-slate-500">
-           <p>© {new Date().getFullYear()} GIZMO. Built with ❤️ by maisha0055.dev</p>
+           <p>© {new Date().getFullYear()} Copyright ©2026 GIZMO. All rights reserved.</p>
            <div className="flex gap-6">
              <a href="#" className="hover:text-white transition-colors">Privacy</a>
              <a href="#" className="hover:text-white transition-colors">Terms</a>
