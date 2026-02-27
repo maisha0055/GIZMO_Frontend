@@ -185,6 +185,7 @@ const JobListing = () => {
                     </div>
                 )}
             </section>
+
         </div>
     )
 }

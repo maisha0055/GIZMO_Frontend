@@ -3,7 +3,19 @@
 @tailwind components;
 @tailwind utilities;
 
-*{
+* {
+    transition: background-color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+}
+
+.gizmo-card {
+    @apply transition-all duration-300 hover:shadow-2xl hover:-translate-y-2 border border-transparent hover:border-blue-100;
+}
+
+.gizmo-btn {
+    @apply transition-all duration-200 active:scale-95;
+}
+
+* {
     font-family: Outfit;
 }
 
@@ -13,7 +25,7 @@
     }
 }
 
-::-webkit-scrollbar{
+::-webkit-scrollbar {
     display: none;
 }
 
@@ -21,28 +33,73 @@
 
 /* Rich Text Styling for ApplyJob.jsx */
 
-.rich-text {font-size: 1rem; line-height: 1.8; color: #333; padding: 1rem 0;}
+.rich-text {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: #333;
+    padding: 1rem 0;
+}
 
 .rich-text h1,
 .rich-text h2,
-.rich-text h3 { font-weight: 600; margin-top: 1.5rem; margin-bottom: 1rem; color: #1f2937; /* gray-800 */}
+.rich-text h3 {
+    font-weight: 600;
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: #1f2937;
+    /* gray-800 */
+}
 
-.rich-text p { margin-bottom: 1rem; color: #4b5563; /* gray-600 */}
+.rich-text p {
+    margin-bottom: 1rem;
+    color: #4b5563;
+    /* gray-600 */
+}
 
 .rich-text ul,
-.rich-text ol { margin: 1rem 0 1rem 1.25rem; padding-left: 1.25rem;}
+.rich-text ol {
+    margin: 1rem 0 1rem 1.25rem;
+    padding-left: 1.25rem;
+}
 
-.rich-text ul li { list-style-type: disc; margin-bottom: 0.5rem;}
+.rich-text ul li {
+    list-style-type: disc;
+    margin-bottom: 0.5rem;
+}
 
-.rich-text ol li { list-style-type: decimal; margin-bottom: 0.5rem; }
+.rich-text ol li {
+    list-style-type: decimal;
+    margin-bottom: 0.5rem;
+}
 
-.rich-text a {color: #2563eb; /* blue-600 */ text-decoration: underline; }
+.rich-text a {
+    color: #2563eb;
+    /* blue-600 */
+    text-decoration: underline;
+}
 
-.rich-text a:hover { color: #1d4ed8; /* blue-700 */ }
+.rich-text a:hover {
+    color: #1d4ed8;
+    /* blue-700 */
+}
 
-.rich-text blockquote {border-left: 4px solid #10b981; /* green-500 */ padding-left: 1rem; color: #374151; /* gray-700 */ font-style: italic; margin: 1rem 0;}
+.rich-text blockquote {
+    border-left: 4px solid #10b981;
+    /* green-500 */
+    padding-left: 1rem;
+    color: #374151;
+    /* gray-700 */
+    font-style: italic;
+    margin: 1rem 0;
+}
 
-.rich-text strong {font-weight: 600;}
+.rich-text strong {
+    font-weight: 600;
+}
 
-.rich-text img {max-width: 100%; height: auto; margin: 1rem 0; border-radius: 0.5rem; }
-
+.rich-text img {
+    max-width: 100%;
+    height: auto;
+    margin: 1rem 0;
+    border-radius: 0.5rem;
+}

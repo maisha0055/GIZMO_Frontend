@@ -12,7 +12,7 @@ const JobCart = ({ job }) => {
   const birds = Array.from({ length: 8 });
 
   return (
-    <div className='bg-white p-6 shadow-sm border border-gray-100 rounded-2xl hover:shadow-2xl hover:-translate-y-2 hover:border-blue-200 transition-all duration-300 group cursor-pointer'>
+    <div className="job-card gizmo-card">
       {/* Clouds */}
       <div className="absolute -top-10 -left-10 w-32 h-32 bg-[#7ff3d8] rounded-full blur-3xl opacity-40 animate-float-slow"></div>
       <div className="absolute bottom-0 right-0 w-24 h-24 bg-yellow-200 rounded-full blur-2xl opacity-40 animate-float"></div>
