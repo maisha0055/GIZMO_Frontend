@@ -9,39 +9,55 @@ import companyRoutes from './routes/companyRoutes.js'
 import connectCloudinary from './config/cloudinary.js'
 import jobRoutes from './routes/jobRoutes.js'
 import userRoutes from './routes/userRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
+import reportRoutes from './routes/reportRoutes.js'
 import { clerkMiddleware } from '@clerk/express'
 
-//Initialize Express
+// Initialize Express
 const app = express()
 
-//Connect to database
-await connectDB()
-await connectCloudinary()
+// Track connection state to avoid reconnecting on every request
+let isConnected = false
 
-//Middlewares
-app.use(cors())
+// Middleware to lazily connect DB and Cloudinary (required for serverless)
+app.use(async (req, res, next) => {
+  if (!isConnected) {
+    try {
+      await connectDB()
+      await connectCloudinary()
+      isConnected = true
+    } catch (err) {
+      console.error('Connection error:', err)
+      return res.status(500).json({ message: 'Failed to connect to database' })
+    }
+  }
+  next()
+})
+
+// Middlewares
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*',
+  credentials: true
+}))
 app.use(express.json())
 app.use(clerkMiddleware())
 
-//Routes
-app.get('/', (req, res)=> res.send("API Working"))
+// Routes
+app.get('/', (req, res) => res.send("API Working"))
+
 app.get("/debug-sentry", function mainHandler(req, res) {
-    throw new Error("My first Sentry error!");
+  throw new Error("My first Sentry error!");
 });
 
 app.post('/webhooks', clerkWebhooks)
-
 app.use('/api/company', companyRoutes)
 app.use('/api/jobs', jobRoutes)
-
-// TEMPORARY: Remove authentication to test if routes work
 app.use('/api/users', userRoutes)
+app.use('/api/admin', adminRoutes)
+app.use('/api/reports', reportRoutes)
 
-//port
-const PORT = process.env.PORT || 4000
-
+// Sentry error handler (must be after all routes)
 Sentry.setupExpressErrorHandler(app);
 
-app.listen(PORT, ()=>{
-    console.log(`Server is running on port ${PORT}`)
-})
+// Export for Vercel serverless
+export default app
