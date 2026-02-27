@@ -1,10 +1,10 @@
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useContext } from 'react'
+import { AppContext } from '../context/AppContext'
 import hov1 from '../assets/hov1.png'
 import hov2 from '../assets/hov2.png'
 
 const RecruiterCTA = () => {
-  const navigate = useNavigate()
+  const { setShowRecruiterLogin } = useContext(AppContext)
 
   return (
     <div className="container mx-auto px-4 2xl:px-20 py-16">
@@ -43,7 +43,7 @@ const RecruiterCTA = () => {
           </p>
           
           <button 
-            onClick={() => navigate('/recruiter-login')}
+            onClick={() => { setShowRecruiterLogin(true); window.scrollTo(0, 0); }}
             className="group flex items-center justify-center lg:justify-start gap-3 border-2 border-[#2e7d32] text-[#2e7d32] hover:bg-[#2e7d32] hover:text-white px-10 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-sm hover:shadow-lg active:scale-95 mx-auto lg:mx-0"
           >
             Post a Job 
