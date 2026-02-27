@@ -111,6 +111,17 @@ const RecruiterLogin = () => {
                 }
 
                 <img onClick={e => setShowRecruiterLogin(false)} className='absolute top-5 right-5 cursor-pointer w-5 h-5' src={assets.cross_icon} alt="close" />
+
+                {/* Admin Login Link */}
+                <div className='mt-4 pt-4 border-t border-gray-100 text-center'>
+                    <p className='text-xs text-gray-400'>Are you a platform admin? <span
+                        className='text-red-500 cursor-pointer font-medium hover:underline'
+                        onClick={() => {
+                            setShowRecruiterLogin(false)
+                            navigate('/admin/login')
+                        }}
+                    >Admin Login →</span></p>
+                </div>
             </form>
         </div>
     )
