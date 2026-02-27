@@ -9,6 +9,7 @@ const EmergencyContact = () => {
       <h1 className="text-3xl font-bold text-red-600 mb-6">🚨 Emergency Contact</h1>
 
       <div className="bg-white shadow-md rounded-lg p-6 border border-gray-200">
+        <h2 className="text-xl font-semibold mb-4 text-gray-800">Details of a designated individual to be contacted in case of emergency</h2>
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Contact Details</h2>
         <p className="text-gray-700 mb-2">
           <strong>Name:</strong> John Doe
@@ -30,17 +31,17 @@ const EmergencyContact = () => {
         </p>
 
         <p className="text-gray-700 mt-4">
-          If you need immediate help, please join the Google Meet link below:
+          For urgent matters, use your emergency contact information.
         </p>
 
-        <a
+        {/* <a
           href="https://meet.google.com/your-meet-link" // ✅ replace with your real Meet link
           target="_blank"
           rel="noreferrer"
           className="inline-block mt-4 bg-green-500 text-white px-6 py-2 rounded hover:bg-green-600 transition"
         >
           Join Google Meet
-        </a>
+        </a> */}
       </div>
 
       <button

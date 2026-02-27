@@ -36,19 +36,24 @@ const Badge = ({ type }) => {
   )
 }
 
-const Btn = ({ children, onClick, variant = 'primary', disabled }) => {
+const Btn = ({ children, onClick, variant = 'primary', disabled, type = 'button' }) => {
   const styles = {
-    primary:  { bg: ol.main, color: '#fff', border: 'none' },
+    primary:  { bg: '#4a5a1e', color: '#000', border: 'none' }, // Darker green with black text
     danger:   { bg: '#fde8e8', color: '#c0392b', border: 'none' },
     success:  { bg: '#e8f5e9', color: '#2e7d32', border: 'none' },
     ghost:    { bg: 'transparent', color: ol.muted, border: `1px solid ${ol.bdr}` },
   }
   const s = styles[variant] || styles.primary
   return (
-    <button onClick={onClick} disabled={disabled} style={{
-      padding: '7px 18px', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer',
-      fontWeight: 600, fontSize: 13, opacity: disabled ? 0.6 : 1, transition: 'opacity 0.15s', ...s
-    }}>{children}</button>
+    <button type={type} onClick={onClick} disabled={disabled} style={{
+      padding: '10px 24px', borderRadius: 10, cursor: disabled ? 'not-allowed' : 'pointer',
+      fontWeight: '700', fontSize: 14, opacity: disabled ? 0.6 : 1, transition: 'all 0.2s',
+      boxShadow: variant === 'primary' ? '0 4px 12px rgba(74, 90, 30, 0.2)' : 'none',
+      ...s
+    }}
+    onMouseEnter={e => { if(!disabled) e.currentTarget.style.filter = 'brightness(1.1)' }}
+    onMouseLeave={e => { if(!disabled) e.currentTarget.style.filter = 'none' }}
+    >{children}</button>
   )
 }
 
@@ -153,19 +158,40 @@ const NewsPanel = ({ token }) => {
   const [newsList, setNewsList] = useState([])
   const [form, setForm] = useState({ title: '', content: '', category: 'news', imageUrl: '' })
   const [submitting, setSubmitting] = useState(false)
+  const [editingId, setEditingId] = useState(null)
 
   const fetch = () => axios.get(`${backendUrl}/api/admin/news`).then(r => r.data.success && setNewsList(r.data.news))
   useEffect(() => { fetch() }, [])
 
-  const handleAdd = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault(); setSubmitting(true)
-    const { data } = await axios.post(`${backendUrl}/api/admin/news`, form, { headers: { token } })
-    if (data.success) { toast.success('Published!'); setForm({ title: '', content: '', category: 'news', imageUrl: '' }); fetch() }
+    const url = editingId ? `${backendUrl}/api/admin/news/${editingId}` : `${backendUrl}/api/admin/news`
+    const method = editingId ? 'put' : 'post'
+    
+    const { data } = await axios[method](url, form, { headers: { token } })
+    if (data.success) { 
+      toast.success(editingId ? 'Updated!' : 'Published!'); 
+      setForm({ title: '', content: '', category: 'news', imageUrl: '' }); 
+      setEditingId(null);
+      fetch() 
+    }
     else toast.error(data.message)
     setSubmitting(false)
   }
 
+  const handleEdit = (n) => {
+    setEditingId(n._id)
+    setForm({ title: n.title, content: n.content, category: n.category, imageUrl: n.imageUrl || '' })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  const cancelEdit = () => {
+    setEditingId(null)
+    setForm({ title: '', content: '', category: 'news', imageUrl: '' })
+  }
+
   const del = async (id) => {
+    if (!window.confirm('Delete this article?')) return
     const { data } = await axios.delete(`${backendUrl}/api/admin/news/${id}`, { headers: { token } })
     if (data.success) { toast.success('Deleted'); fetch() }
   }
@@ -176,8 +202,10 @@ const NewsPanel = ({ token }) => {
 
       {/* Form */}
       <div style={{ background: ol.pale, border: `1.5px solid ${ol.bdr}`, borderRadius: 16, padding: 24, marginBottom: 28 }}>
-        <h3 style={{ color: ol.dark, margin: '0 0 16px', fontSize: 15, fontWeight: 700 }}>Publish New Article</h3>
-        <form onSubmit={handleAdd}>
+        <h3 style={{ color: ol.dark, margin: '0 0 16px', fontSize: 15, fontWeight: 700 }}>
+          {editingId ? '📝 Edit Article' : 'Publish New Article'}
+        </h3>
+        <form onSubmit={handleSubmit}>
           <input style={inputStyle} placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
           <textarea style={{ ...inputStyle, minHeight: 90, resize: 'vertical' }} placeholder="Content..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} required />
           <input style={inputStyle} placeholder="Image URL (optional)" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
@@ -185,7 +213,10 @@ const NewsPanel = ({ token }) => {
             <option value="news">📰 News</option>
             <option value="journal">📘 Journal</option>
           </select>
-          <Btn variant="primary" disabled={submitting}>{submitting ? 'Publishing...' : 'Publish Article'}</Btn>
+          <div style={{ display: 'flex', gap: 10 }}>
+            <Btn variant="primary" disabled={submitting}>{submitting ? 'Working...' : editingId ? 'Update Article' : 'Publish Article'}</Btn>
+            {editingId && <Btn variant="ghost" onClick={cancelEdit}>Cancel</Btn>}
+          </div>
         </form>
       </div>
 
@@ -193,7 +224,7 @@ const NewsPanel = ({ token }) => {
       {newsList.map(n => (
         <Card key={n._id}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
+            <div style={{ flex: 1, cursor: 'pointer' }} onClick={() => handleEdit(n)}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
                 <span style={{ fontWeight: 700, color: ol.text }}>{n.title}</span>
                 <Badge type={n.category} />
@@ -201,7 +232,10 @@ const NewsPanel = ({ token }) => {
               <p style={{ color: ol.muted, fontSize: 13, margin: '0 0 6px' }}>{n.content.slice(0, 130)}...</p>
               <p style={{ color: ol.light, fontSize: 12, margin: 0 }}>{new Date(n.createdAt).toLocaleDateString()}</p>
             </div>
-            <Btn variant="danger" onClick={() => del(n._id)}>Delete</Btn>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Btn variant="ghost" onClick={() => handleEdit(n)}>Edit</Btn>
+              <Btn variant="danger" onClick={() => del(n._id)}>Delete</Btn>
+            </div>
           </div>
         </Card>
       ))}

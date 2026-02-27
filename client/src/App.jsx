@@ -13,6 +13,7 @@ import EmergencyContact from './pages/EmergencyContact'
 import Interview from './pages/Interview'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
+import NewsPage from './pages/NewsPage'
 import 'quill/dist/quill.snow.css'
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css'
@@ -33,6 +34,7 @@ const App = () => {
         <Route path='/interview' element={<Interview />} />
         <Route path='/admin/login' element={<AdminLogin />} />
         <Route path='/admin/dashboard' element={<AdminDashboard />} />
+        <Route path='/news' element={<NewsPage />} />
         <Route path= '/dashboard' element={<Dashboard/>}>
         
           {

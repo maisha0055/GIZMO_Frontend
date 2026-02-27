@@ -12,6 +12,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 //import 'react-toastify/dist/ReactToastify.css';
 import { useAuth, useUser } from '@clerk/clerk-react';
+import ReportModal from '../components/ReportModal';
 
 const ApplyJob = () => {
   const { id } = useParams();
@@ -22,6 +23,7 @@ const ApplyJob = () => {
   const [jobData, setJobData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
+  const [showReport, setShowReport] = useState(false);
 
   const { jobs, backendUrl, userData, userApplications, setUserApplications, fetchUserApplications } = useContext(AppContext);
 
@@ -201,7 +203,7 @@ const ApplyJob = () => {
                 </div>
               </div>
             </div>
-            <div className="flex flex-col justify-center text-end text-sm max-md:mx-auto max-md:text-center">
+            <div className="flex flex-col justify-center text-end text-sm max-md:mx-auto max-md:text-center gap-2">
               <button
                 onClick={buttonState.onClick}
                 disabled={buttonState.disabled}
@@ -210,6 +212,14 @@ const ApplyJob = () => {
                 {buttonState.text}
               </button>
               <p className="mt-1 text-gray-600">Posted {moment(jobData.date).fromNow()}</p>
+              {isSignedIn && (
+                <button
+                  onClick={() => setShowReport(true)}
+                  className="text-xs text-red-400 hover:text-red-600 mt-1 underline underline-offset-2 transition-colors"
+                >
+                  🚩 Report this Company
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -243,6 +253,16 @@ const ApplyJob = () => {
         </div>
       </div>
       <Footer />
+      {showReport && isSignedIn && (
+        <ReportModal
+          reportedBy={userData?._id || 'unknown'}
+          reportedByType="user"
+          targetId={jobData.companyId?._id}
+          targetType="company"
+          targetName={jobData.companyId?.name}
+          onClose={() => setShowReport(false)}
+        />
+      )}
     </>
   );
 };

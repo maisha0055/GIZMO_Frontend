@@ -11,8 +11,8 @@ export const loginAdmin = async (req, res) => {
     const { email, password } = req.body
 
     if (
-        email !== process.env.ADMIN_EMAIL ||
-        password !== process.env.ADMIN_PASSWORD
+        email.trim() !== (process.env.ADMIN_EMAIL || '').trim() ||
+        password.trim() !== (process.env.ADMIN_PASSWORD || '').trim()
     ) {
         return res.json({ success: false, message: 'Invalid admin credentials.' })
     }
@@ -112,6 +112,18 @@ export const deleteNews = async (req, res) => {
     try {
         await News.findByIdAndDelete(req.params.id)
         res.json({ success: true, message: 'News deleted.' })
+    } catch (error) {
+        res.json({ success: false, message: error.message })
+    }
+}
+
+export const updateNews = async (req, res) => {
+    try {
+        const { id } = req.params
+        const { title, content, category, imageUrl } = req.body
+        const news = await News.findByIdAndUpdate(id, { title, content, category, imageUrl }, { new: true })
+        if (!news) return res.json({ success: false, message: 'Article not found.' })
+        res.json({ success: true, message: 'Article updated!', news })
     } catch (error) {
         res.json({ success: false, message: error.message })
     }
