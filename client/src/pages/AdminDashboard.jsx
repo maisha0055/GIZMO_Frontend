@@ -214,7 +214,7 @@ const NewsPanel = ({ token }) => {
             <option value="journal">📘 Journal</option>
           </select>
           <div style={{ display: 'flex', gap: 10 }}>
-            <Btn variant="primary" disabled={submitting}>{submitting ? 'Working...' : editingId ? 'Update Article' : 'Publish Article'}</Btn>
+            <Btn variant="primary" type="submit" disabled={submitting}>{submitting ? 'Working...' : editingId ? 'Update Article' : 'Publish Article'}</Btn>
             {editingId && <Btn variant="ghost" onClick={cancelEdit}>Cancel</Btn>}
           </div>
         </form>
