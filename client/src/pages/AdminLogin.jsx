@@ -5,6 +5,15 @@ import { toast } from 'react-toastify'
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL
 
+const olive = {
+  dark:   '#4a5a1e',
+  main:   '#6b7a2f',
+  mid:    '#8a9a45',
+  light:  '#c8d48a',
+  pale:   '#f0f4e0',
+  bg:     '#ffffff',
+}
+
 const AdminLogin = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
@@ -23,7 +32,7 @@ const AdminLogin = () => {
       } else {
         toast.error(data.message)
       }
-    } catch (err) {
+    } catch {
       toast.error('Login failed. Please try again.')
     } finally {
       setLoading(false)
@@ -36,37 +45,38 @@ const AdminLogin = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)'
+      background: olive.bg,
     }}>
+      {/* Decorative olive blobs */}
+      <div style={{ position: 'fixed', top: -80, right: -80, width: 300, height: 300, borderRadius: '50%', background: olive.pale, zIndex: 0 }} />
+      <div style={{ position: 'fixed', bottom: -100, left: -80, width: 360, height: 360, borderRadius: '50%', background: olive.pale, zIndex: 0 }} />
+
       <div style={{
-        background: 'rgba(255,255,255,0.05)',
-        backdropFilter: 'blur(20px)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '20px',
+        position: 'relative', zIndex: 1,
+        background: '#fff',
+        border: `1.5px solid ${olive.light}`,
+        borderRadius: 24,
         padding: '48px 40px',
         width: '100%',
-        maxWidth: '420px',
-        boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
+        maxWidth: 420,
+        boxShadow: '0 8px 40px rgba(107,122,47,0.12)',
       }}>
-        {/* Logo/Icon */}
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
+        {/* Logo */}
+        <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{
-            width: '64px', height: '64px',
-            background: 'linear-gradient(135deg, #e94560, #0f3460)',
-            borderRadius: '16px',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '28px',
-            marginBottom: '16px'
+            width: 64, height: 64,
+            background: `linear-gradient(135deg, ${olive.mid}, ${olive.dark})`,
+            borderRadius: 16,
+            display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 28, marginBottom: 14, boxShadow: `0 4px 16px rgba(107,122,47,0.3)`
           }}>🛡️</div>
-          <h1 style={{ color: '#fff', fontSize: '24px', fontWeight: 700, margin: 0 }}>GIZMO Admin</h1>
-          <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '14px', marginTop: '6px' }}>Super Admin Portal</p>
+          <h1 style={{ color: olive.dark, fontSize: 24, fontWeight: 700, margin: 0 }}>GIZMO Admin</h1>
+          <p style={{ color: olive.mid, fontSize: 14, marginTop: 6 }}>Super Admin Portal</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: 500, display: 'block', marginBottom: '8px' }}>
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ color: olive.dark, fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 8 }}>
               Admin Email
             </label>
             <input
@@ -77,14 +87,14 @@ const AdminLogin = () => {
               placeholder="admin@gizmo.com"
               style={{
                 width: '100%', padding: '12px 16px', boxSizing: 'border-box',
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none'
+                background: olive.pale, border: `1.5px solid ${olive.light}`,
+                borderRadius: 10, color: olive.dark, fontSize: 14, outline: 'none'
               }}
             />
           </div>
 
-          <div style={{ marginBottom: '28px' }}>
-            <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', fontWeight: 500, display: 'block', marginBottom: '8px' }}>
+          <div style={{ marginBottom: 28 }}>
+            <label style={{ color: olive.dark, fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 8 }}>
               Password
             </label>
             <input
@@ -95,8 +105,8 @@ const AdminLogin = () => {
               placeholder="••••••••"
               style={{
                 width: '100%', padding: '12px 16px', boxSizing: 'border-box',
-                background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-                borderRadius: '10px', color: '#fff', fontSize: '14px', outline: 'none'
+                background: olive.pale, border: `1.5px solid ${olive.light}`,
+                borderRadius: 10, color: olive.dark, fontSize: 14, outline: 'none'
               }}
             />
           </div>
@@ -106,10 +116,11 @@ const AdminLogin = () => {
             disabled={loading}
             style={{
               width: '100%', padding: '14px',
-              background: loading ? 'rgba(233,69,96,0.5)' : 'linear-gradient(135deg, #e94560, #c0392b)',
-              border: 'none', borderRadius: '10px',
-              color: '#fff', fontSize: '15px', fontWeight: 600,
+              background: loading ? olive.mid : `linear-gradient(135deg, ${olive.main}, ${olive.dark})`,
+              border: 'none', borderRadius: 10,
+              color: '#fff', fontSize: 15, fontWeight: 700,
               cursor: loading ? 'not-allowed' : 'pointer',
+              boxShadow: `0 4px 14px rgba(107,122,47,0.3)`,
               transition: 'all 0.2s'
             }}
           >

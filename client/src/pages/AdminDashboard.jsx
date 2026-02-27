@@ -5,258 +5,252 @@ import { toast } from 'react-toastify'
 
 const backendUrl = import.meta.env.VITE_BACKEND_URL
 
-// ─── Styles ──────────────────────────────────────────────────────────────────
-const colors = {
-  bg: '#0f172a', sidebar: '#1e293b', card: '#1e293b',
-  accent: '#e94560', muted: 'rgba(255,255,255,0.45)',
-  text: '#f1f5f9', border: 'rgba(255,255,255,0.08)'
+const ol = {
+  dark:   '#4a5a1e',
+  main:   '#6b7a2f',
+  mid:    '#8a9a45',
+  light:  '#c8d48a',
+  pale:   '#f0f4e0',
+  bdr:    '#dde7b0',
+  bg:     '#ffffff',
+  sidebar:'#f7faee',
+  text:   '#1e2d00',
+  muted:  '#7a8860',
 }
 
-const badge = (color, text) => (
-  <span style={{
-    background: color === 'red' ? 'rgba(239,68,68,0.15)' : color === 'green' ? 'rgba(34,197,94,0.15)' : 'rgba(234,179,8,0.15)',
-    color: color === 'red' ? '#ef4444' : color === 'green' ? '#22c55e' : '#eab308',
-    padding: '2px 10px', borderRadius: '99px', fontSize: '12px', fontWeight: 600
-  }}>{text}</span>
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+const Badge = ({ type }) => {
+  const styles = {
+    banned:   { bg: '#fde8e8', color: '#c0392b', label: 'Banned' },
+    active:   { bg: '#e8f5e9', color: '#2e7d32', label: 'Active' },
+    pending:  { bg: '#fff3e0', color: '#e65100', label: 'Pending' },
+    resolved: { bg: '#e8f5e9', color: '#2e7d32', label: 'Resolved' },
+    news:     { bg: ol.pale,   color: ol.main,   label: '📰 News' },
+    journal:  { bg: '#fef9e7', color: '#7d6608', label: '📘 Journal' },
+  }
+  const s = styles[type] || styles.active
+  return (
+    <span style={{ background: s.bg, color: s.color, padding: '3px 12px', borderRadius: 99, fontSize: 12, fontWeight: 600 }}>
+      {s.label}
+    </span>
+  )
+}
+
+const Btn = ({ children, onClick, variant = 'primary', disabled }) => {
+  const styles = {
+    primary:  { bg: ol.main, color: '#fff', border: 'none' },
+    danger:   { bg: '#fde8e8', color: '#c0392b', border: 'none' },
+    success:  { bg: '#e8f5e9', color: '#2e7d32', border: 'none' },
+    ghost:    { bg: 'transparent', color: ol.muted, border: `1px solid ${ol.bdr}` },
+  }
+  const s = styles[variant] || styles.primary
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      padding: '7px 18px', borderRadius: 8, cursor: disabled ? 'not-allowed' : 'pointer',
+      fontWeight: 600, fontSize: 13, opacity: disabled ? 0.6 : 1, transition: 'opacity 0.15s', ...s
+    }}>{children}</button>
+  )
+}
+
+const inputStyle = {
+  width: '100%', padding: '10px 14px', boxSizing: 'border-box', marginBottom: 12,
+  background: ol.pale, border: `1.5px solid ${ol.bdr}`,
+  borderRadius: 10, color: ol.text, fontSize: 14, outline: 'none'
+}
+
+const Card = ({ children }) => (
+  <div style={{ background: '#fff', border: `1.5px solid ${ol.bdr}`, borderRadius: 14, padding: 20, marginBottom: 14 }}>
+    {children}
+  </div>
 )
 
-// ─── Sub-panels ───────────────────────────────────────────────────────────────
+const tableHead = ['', 'Name', 'Email', 'Status', 'Action']
 
+// ─── Users Panel ─────────────────────────────────────────────────────────────
 const UsersPanel = ({ token }) => {
   const [users, setUsers] = useState([])
   useEffect(() => {
     axios.get(`${backendUrl}/api/admin/users`, { headers: { token } })
-      .then(r => { if (r.data.success) setUsers(r.data.users) })
+      .then(r => r.data.success && setUsers(r.data.users))
   }, [])
 
   const toggle = async (id, banned) => {
-    const url = `${backendUrl}/api/admin/${banned ? 'unban' : 'ban'}-user/${id}`
-    const { data } = await axios.put(url, {}, { headers: { token } })
-    if (data.success) {
-      setUsers(prev => prev.map(u => u._id === id ? { ...u, isBanned: !banned } : u))
-      toast.success(data.message)
-    }
+    const { data } = await axios.put(`${backendUrl}/api/admin/${banned ? 'unban' : 'ban'}-user/${id}`, {}, { headers: { token } })
+    if (data.success) { setUsers(p => p.map(u => u._id === id ? { ...u, isBanned: !banned } : u)); toast.success(data.message) }
   }
 
   return (
     <div>
-      <h2 style={{ color: colors.text, marginBottom: 20 }}>👤 All Users</h2>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', color: colors.text, fontSize: 14 }}>
+      <h2 style={{ color: ol.dark, marginBottom: 20, fontSize: 20 }}>👤 All Users</h2>
+      <div style={{ overflowX: 'auto', background: '#fff', border: `1.5px solid ${ol.bdr}`, borderRadius: 14 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, color: ol.text }}>
           <thead>
-            <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-              {['Image','Name','Email','Status','Action'].map(h =>
-                <th key={h} style={{ padding: '10px 16px', textAlign: 'left', color: colors.muted, fontWeight: 500 }}>{h}</th>
-              )}
+            <tr style={{ background: ol.pale }}>
+              {tableHead.map(h => <th key={h} style={{ padding: '12px 16px', textAlign: 'left', color: ol.muted, fontWeight: 600, borderBottom: `1px solid ${ol.bdr}` }}>{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {users.map(u => (
-              <tr key={u._id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                <td style={{ padding: '12px 16px' }}>
-                  <img src={u.image || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(u.name)} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} />
-                </td>
-                <td style={{ padding: '12px 16px' }}>{u.name}</td>
-                <td style={{ padding: '12px 16px', color: colors.muted }}>{u.email}</td>
-                <td style={{ padding: '12px 16px' }}>{u.isBanned ? badge('red','Banned') : badge('green','Active')}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  <button onClick={() => toggle(u._id, u.isBanned)} style={{
-                    padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
-                    background: u.isBanned ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                    color: u.isBanned ? '#22c55e' : '#ef4444'
-                  }}>{u.isBanned ? 'Unban' : 'Ban'}</button>
-                </td>
+              <tr key={u._id} style={{ borderBottom: `1px solid ${ol.pale}` }}>
+                <td style={{ padding: '12px 16px' }}><img src={u.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(u.name)}&background=c8d48a&color=4a5a1e`} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }} /></td>
+                <td style={{ padding: '12px 16px', fontWeight: 500 }}>{u.name}</td>
+                <td style={{ padding: '12px 16px', color: ol.muted }}>{u.email}</td>
+                <td style={{ padding: '12px 16px' }}><Badge type={u.isBanned ? 'banned' : 'active'} /></td>
+                <td style={{ padding: '12px 16px' }}><Btn variant={u.isBanned ? 'success' : 'danger'} onClick={() => toggle(u._id, u.isBanned)}>{u.isBanned ? 'Unban' : 'Ban'}</Btn></td>
               </tr>
             ))}
           </tbody>
         </table>
-        {users.length === 0 && <p style={{ color: colors.muted, textAlign: 'center', marginTop: 32 }}>No users found.</p>}
+        {users.length === 0 && <p style={{ color: ol.muted, textAlign: 'center', padding: 32 }}>No users found.</p>}
       </div>
     </div>
   )
 }
 
+// ─── Companies Panel ──────────────────────────────────────────────────────────
 const CompaniesPanel = ({ token }) => {
   const [companies, setCompanies] = useState([])
   useEffect(() => {
     axios.get(`${backendUrl}/api/admin/companies`, { headers: { token } })
-      .then(r => { if (r.data.success) setCompanies(r.data.companies) })
+      .then(r => r.data.success && setCompanies(r.data.companies))
   }, [])
 
   const toggle = async (id, banned) => {
-    const url = `${backendUrl}/api/admin/${banned ? 'unban' : 'ban'}-company/${id}`
-    const { data } = await axios.put(url, {}, { headers: { token } })
-    if (data.success) {
-      setCompanies(prev => prev.map(c => c._id === id ? { ...c, isBanned: !banned } : c))
-      toast.success(data.message)
-    }
+    const { data } = await axios.put(`${backendUrl}/api/admin/${banned ? 'unban' : 'ban'}-company/${id}`, {}, { headers: { token } })
+    if (data.success) { setCompanies(p => p.map(c => c._id === id ? { ...c, isBanned: !banned } : c)); toast.success(data.message) }
   }
 
   return (
     <div>
-      <h2 style={{ color: colors.text, marginBottom: 20 }}>🏢 All Companies</h2>
-      <div style={{ overflowX: 'auto' }}>
-        <table style={{ width: '100%', borderCollapse: 'collapse', color: colors.text, fontSize: 14 }}>
+      <h2 style={{ color: ol.dark, marginBottom: 20, fontSize: 20 }}>🏢 All Companies</h2>
+      <div style={{ overflowX: 'auto', background: '#fff', border: `1.5px solid ${ol.bdr}`, borderRadius: 14 }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14, color: ol.text }}>
           <thead>
-            <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
-              {['Logo','Name','Email','Status','Action'].map(h =>
-                <th key={h} style={{ padding: '10px 16px', textAlign: 'left', color: colors.muted, fontWeight: 500 }}>{h}</th>
-              )}
+            <tr style={{ background: ol.pale }}>
+              {tableHead.map(h => <th key={h} style={{ padding: '12px 16px', textAlign: 'left', color: ol.muted, fontWeight: 600, borderBottom: `1px solid ${ol.bdr}` }}>{h}</th>)}
             </tr>
           </thead>
           <tbody>
             {companies.map(c => (
-              <tr key={c._id} style={{ borderBottom: `1px solid ${colors.border}` }}>
-                <td style={{ padding: '12px 16px' }}>
-                  <img src={c.image} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} />
-                </td>
+              <tr key={c._id} style={{ borderBottom: `1px solid ${ol.pale}` }}>
+                <td style={{ padding: '12px 16px' }}><img src={c.image} alt="" style={{ width: 36, height: 36, borderRadius: 8, objectFit: 'cover' }} /></td>
                 <td style={{ padding: '12px 16px', fontWeight: 500 }}>{c.name}</td>
-                <td style={{ padding: '12px 16px', color: colors.muted }}>{c.email}</td>
-                <td style={{ padding: '12px 16px' }}>{c.isBanned ? badge('red','Banned') : badge('green','Active')}</td>
-                <td style={{ padding: '12px 16px' }}>
-                  <button onClick={() => toggle(c._id, c.isBanned)} style={{
-                    padding: '6px 16px', borderRadius: 8, border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: 13,
-                    background: c.isBanned ? 'rgba(34,197,94,0.15)' : 'rgba(239,68,68,0.15)',
-                    color: c.isBanned ? '#22c55e' : '#ef4444'
-                  }}>{c.isBanned ? 'Unban' : 'Ban'}</button>
-                </td>
+                <td style={{ padding: '12px 16px', color: ol.muted }}>{c.email}</td>
+                <td style={{ padding: '12px 16px' }}><Badge type={c.isBanned ? 'banned' : 'active'} /></td>
+                <td style={{ padding: '12px 16px' }}><Btn variant={c.isBanned ? 'success' : 'danger'} onClick={() => toggle(c._id, c.isBanned)}>{c.isBanned ? 'Unban' : 'Ban'}</Btn></td>
               </tr>
             ))}
           </tbody>
         </table>
-        {companies.length === 0 && <p style={{ color: colors.muted, textAlign: 'center', marginTop: 32 }}>No companies found.</p>}
+        {companies.length === 0 && <p style={{ color: ol.muted, textAlign: 'center', padding: 32 }}>No companies found.</p>}
       </div>
     </div>
   )
 }
 
+// ─── News Panel ───────────────────────────────────────────────────────────────
 const NewsPanel = ({ token }) => {
   const [newsList, setNewsList] = useState([])
   const [form, setForm] = useState({ title: '', content: '', category: 'news', imageUrl: '' })
   const [submitting, setSubmitting] = useState(false)
 
-  const fetchNews = () => {
-    axios.get(`${backendUrl}/api/admin/news`)
-      .then(r => { if (r.data.success) setNewsList(r.data.news) })
-  }
-  useEffect(fetchNews, [])
+  const fetch = () => axios.get(`${backendUrl}/api/admin/news`).then(r => r.data.success && setNewsList(r.data.news))
+  useEffect(() => { fetch() }, [])
 
   const handleAdd = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
+    e.preventDefault(); setSubmitting(true)
     const { data } = await axios.post(`${backendUrl}/api/admin/news`, form, { headers: { token } })
-    if (data.success) { toast.success('Published!'); setForm({ title: '', content: '', category: 'news', imageUrl: '' }); fetchNews() }
+    if (data.success) { toast.success('Published!'); setForm({ title: '', content: '', category: 'news', imageUrl: '' }); fetch() }
     else toast.error(data.message)
     setSubmitting(false)
   }
 
-  const handleDelete = async (id) => {
+  const del = async (id) => {
     const { data } = await axios.delete(`${backendUrl}/api/admin/news/${id}`, { headers: { token } })
-    if (data.success) { toast.success('Deleted'); fetchNews() }
-  }
-
-  const inputStyle = {
-    width: '100%', padding: '10px 14px', boxSizing: 'border-box', marginBottom: 14,
-    background: 'rgba(255,255,255,0.06)', border: `1px solid ${colors.border}`,
-    borderRadius: 10, color: colors.text, fontSize: 14, outline: 'none'
+    if (data.success) { toast.success('Deleted'); fetch() }
   }
 
   return (
     <div>
-      <h2 style={{ color: colors.text, marginBottom: 20 }}>📰 News & Journals</h2>
+      <h2 style={{ color: ol.dark, marginBottom: 20, fontSize: 20 }}>📰 News & Journals</h2>
 
-      {/* Add Form */}
-      <form onSubmit={handleAdd} style={{ background: 'rgba(255,255,255,0.04)', borderRadius: 14, padding: 24, marginBottom: 32, border: `1px solid ${colors.border}` }}>
-        <h3 style={{ color: colors.text, marginTop: 0, marginBottom: 16, fontSize: 15 }}>Publish New Article</h3>
-        <input style={inputStyle} placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
-        <textarea style={{ ...inputStyle, minHeight: 100, resize: 'vertical' }} placeholder="Content..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} required />
-        <input style={inputStyle} placeholder="Image URL (optional)" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
-        <select style={inputStyle} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-          <option value="news">📰 News</option>
-          <option value="journal">📘 Journal</option>
-        </select>
-        <button type="submit" disabled={submitting} style={{
-          padding: '10px 28px', background: colors.accent, border: 'none', borderRadius: 10,
-          color: '#fff', fontWeight: 600, fontSize: 14, cursor: 'pointer'
-        }}>{submitting ? 'Publishing...' : 'Publish'}</button>
-      </form>
+      {/* Form */}
+      <div style={{ background: ol.pale, border: `1.5px solid ${ol.bdr}`, borderRadius: 16, padding: 24, marginBottom: 28 }}>
+        <h3 style={{ color: ol.dark, margin: '0 0 16px', fontSize: 15, fontWeight: 700 }}>Publish New Article</h3>
+        <form onSubmit={handleAdd}>
+          <input style={inputStyle} placeholder="Title" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
+          <textarea style={{ ...inputStyle, minHeight: 90, resize: 'vertical' }} placeholder="Content..." value={form.content} onChange={e => setForm({ ...form, content: e.target.value })} required />
+          <input style={inputStyle} placeholder="Image URL (optional)" value={form.imageUrl} onChange={e => setForm({ ...form, imageUrl: e.target.value })} />
+          <select style={inputStyle} value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+            <option value="news">📰 News</option>
+            <option value="journal">📘 Journal</option>
+          </select>
+          <Btn variant="primary" disabled={submitting}>{submitting ? 'Publishing...' : 'Publish Article'}</Btn>
+        </form>
+      </div>
 
       {/* List */}
-      <div style={{ display: 'grid', gap: 16 }}>
-        {newsList.map(n => (
-          <div key={n._id} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${colors.border}`, borderRadius: 14, padding: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      {newsList.map(n => (
+        <Card key={n._id}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 6 }}>
-                <span style={{ color: colors.text, fontWeight: 600 }}>{n.title}</span>
-                {n.category === 'journal' ? badge('yellow','Journal') : badge('green','News')}
+                <span style={{ fontWeight: 700, color: ol.text }}>{n.title}</span>
+                <Badge type={n.category} />
               </div>
-              <p style={{ color: colors.muted, fontSize: 13, margin: 0 }}>{n.content.slice(0, 120)}...</p>
+              <p style={{ color: ol.muted, fontSize: 13, margin: '0 0 6px' }}>{n.content.slice(0, 130)}...</p>
+              <p style={{ color: ol.light, fontSize: 12, margin: 0 }}>{new Date(n.createdAt).toLocaleDateString()}</p>
             </div>
-            <button onClick={() => handleDelete(n._id)} style={{
-              marginLeft: 16, padding: '6px 14px', background: 'rgba(239,68,68,0.15)',
-              color: '#ef4444', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13, flexShrink: 0
-            }}>Delete</button>
+            <Btn variant="danger" onClick={() => del(n._id)}>Delete</Btn>
           </div>
-        ))}
-        {newsList.length === 0 && <p style={{ color: colors.muted, textAlign: 'center' }}>No articles yet.</p>}
-      </div>
+        </Card>
+      ))}
+      {newsList.length === 0 && <p style={{ color: ol.muted, textAlign: 'center' }}>No articles yet.</p>}
     </div>
   )
 }
 
+// ─── Reports Panel ────────────────────────────────────────────────────────────
 const ReportsPanel = ({ token }) => {
   const [reports, setReports] = useState([])
 
-  const fetchReports = () => {
-    axios.get(`${backendUrl}/api/admin/reports`, { headers: { token } })
-      .then(r => { if (r.data.success) setReports(r.data.reports) })
-  }
-  useEffect(fetchReports, [])
+  const fetch = () => axios.get(`${backendUrl}/api/admin/reports`, { headers: { token } }).then(r => r.data.success && setReports(r.data.reports))
+  useEffect(() => { fetch() }, [])
 
   const resolve = async (id) => {
     const { data } = await axios.put(`${backendUrl}/api/admin/reports/${id}/resolve`, {}, { headers: { token } })
-    if (data.success) { toast.success('Marked as resolved'); fetchReports() }
+    if (data.success) { toast.success('Resolved'); fetch() }
   }
 
   return (
     <div>
-      <h2 style={{ color: colors.text, marginBottom: 20 }}>🚨 Reports</h2>
-      <div style={{ display: 'grid', gap: 14 }}>
-        {reports.map(r => (
-          <div key={r._id} style={{ background: 'rgba(255,255,255,0.04)', border: `1px solid ${colors.border}`, borderRadius: 14, padding: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <h2 style={{ color: ol.dark, marginBottom: 20, fontSize: 20 }}>🚨 Reports</h2>
+      {reports.map(r => (
+        <Card key={r._id}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ marginBottom: 6, display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
-                <span style={{ color: colors.text, fontWeight: 600 }}>Reported {r.targetType}: <em>{r.targetName || r.targetId}</em></span>
-                {r.status === 'pending' ? badge('red','Pending') : badge('green','Resolved')}
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                <span style={{ fontWeight: 700, color: ol.text }}>Reported {r.targetType}: <em>{r.targetName || r.targetId}</em></span>
+                <Badge type={r.status} />
               </div>
-              <p style={{ color: colors.muted, fontSize: 13, margin: '0 0 4px' }}>
-                <strong style={{ color: colors.text }}>Reason:</strong> {r.reason}
-              </p>
-              <p style={{ color: colors.muted, fontSize: 12, margin: 0 }}>
-                Reported by {r.reportedByType} • {new Date(r.createdAt).toLocaleDateString()}
-              </p>
+              <p style={{ color: ol.muted, fontSize: 13, margin: '0 0 4px' }}><strong>Reason:</strong> {r.reason}</p>
+              <p style={{ color: ol.light, fontSize: 12, margin: 0 }}>By {r.reportedByType} • {new Date(r.createdAt).toLocaleDateString()}</p>
             </div>
-            {r.status === 'pending' && (
-              <button onClick={() => resolve(r._id)} style={{
-                marginLeft: 16, padding: '7px 16px', background: 'rgba(34,197,94,0.15)',
-                color: '#22c55e', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13, flexShrink: 0
-              }}>Resolve</button>
-            )}
+            {r.status === 'pending' && <Btn variant="success" onClick={() => resolve(r._id)}>Resolve</Btn>}
           </div>
-        ))}
-        {reports.length === 0 && <p style={{ color: colors.muted, textAlign: 'center' }}>No reports yet.</p>}
-      </div>
+        </Card>
+      ))}
+      {reports.length === 0 && <p style={{ color: ol.muted, textAlign: 'center' }}>No reports yet.</p>}
     </div>
   )
 }
 
-// ─── Main Dashboard ───────────────────────────────────────────────────────────
-
+// ─── Dashboard Shell ──────────────────────────────────────────────────────────
 const TABS = [
-  { key: 'users', label: '👤 Users' },
+  { key: 'users',     label: '👤 Users' },
   { key: 'companies', label: '🏢 Companies' },
-  { key: 'news', label: '📰 News & Journals' },
-  { key: 'reports', label: '🚨 Reports' },
+  { key: 'news',      label: '📰 News & Journals' },
+  { key: 'reports',   label: '🚨 Reports' },
 ]
 
 const AdminDashboard = () => {
@@ -264,44 +258,61 @@ const AdminDashboard = () => {
   const [tab, setTab] = useState('users')
   const token = localStorage.getItem('adminToken')
 
-  useEffect(() => {
-    if (!token) navigate('/admin/login')
-  }, [])
+  useEffect(() => { if (!token) navigate('/admin/login') }, [])
 
-  const logout = () => {
-    localStorage.removeItem('adminToken')
-    navigate('/admin/login')
-  }
+  const logout = () => { localStorage.removeItem('adminToken'); navigate('/admin/login') }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: colors.bg, fontFamily: 'Inter, sans-serif' }}>
+    <div style={{ display: 'flex', minHeight: '100vh', background: ol.bg, fontFamily: 'Inter, sans-serif' }}>
 
       {/* Sidebar */}
-      <aside style={{ width: 240, background: colors.sidebar, borderRight: `1px solid ${colors.border}`, padding: '28px 0', display: 'flex', flexDirection: 'column' }}>
-        <div style={{ padding: '0 24px 28px', borderBottom: `1px solid ${colors.border}` }}>
-          <div style={{ fontSize: 22, fontWeight: 700, color: colors.text }}>🛡️ GIZMO</div>
-          <div style={{ fontSize: 12, color: colors.muted, marginTop: 4 }}>Admin Panel</div>
+      <aside style={{
+        width: 240, background: ol.sidebar,
+        borderRight: `1.5px solid ${ol.bdr}`,
+        display: 'flex', flexDirection: 'column',
+        padding: '28px 0'
+      }}>
+        {/* Brand */}
+        <div style={{ padding: '0 24px 24px', borderBottom: `1px solid ${ol.bdr}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{
+              width: 38, height: 38, borderRadius: 10,
+              background: `linear-gradient(135deg, ${ol.mid}, ${ol.dark})`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18
+            }}>🛡️</div>
+            <div>
+              <div style={{ fontWeight: 700, color: ol.dark, fontSize: 16 }}>GIZMO</div>
+              <div style={{ fontSize: 11, color: ol.muted }}>Admin Panel</div>
+            </div>
+          </div>
         </div>
+
+        {/* Nav */}
         <nav style={{ flex: 1, paddingTop: 16 }}>
           {TABS.map(t => (
             <button key={t.key} onClick={() => setTab(t.key)} style={{
               display: 'block', width: '100%', textAlign: 'left',
-              padding: '12px 24px', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500,
-              background: tab === t.key ? 'rgba(233,69,96,0.12)' : 'transparent',
-              color: tab === t.key ? colors.accent : colors.muted,
-              borderLeft: tab === t.key ? `3px solid ${colors.accent}` : '3px solid transparent',
+              padding: '11px 24px', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500,
+              background: tab === t.key ? '#e8f0c8' : 'transparent',
+              color: tab === t.key ? ol.dark : ol.muted,
+              borderLeft: tab === t.key ? `3px solid ${ol.main}` : '3px solid transparent',
               transition: 'all 0.15s'
             }}>{t.label}</button>
           ))}
         </nav>
-        <button onClick={logout} style={{
-          margin: '0 16px 8px', padding: '10px 16px', background: 'rgba(239,68,68,0.1)',
-          border: 'none', borderRadius: 10, color: '#ef4444', fontSize: 13, fontWeight: 600, cursor: 'pointer'
-        }}>🚪 Logout</button>
+
+        {/* Logout */}
+        <div style={{ padding: '0 16px' }}>
+          <button onClick={logout} style={{
+            width: '100%', padding: '10px 16px',
+            background: '#fde8e8', border: 'none', borderRadius: 10,
+            color: '#c0392b', fontSize: 13, fontWeight: 700, cursor: 'pointer'
+          }}>🚪 Logout</button>
+        </div>
       </aside>
 
-      {/* Main Content */}
-      <main style={{ flex: 1, padding: '36px 40px', overflowY: 'auto' }}>
+      {/* Main */}
+      <main style={{ flex: 1, padding: '36px 40px', overflowY: 'auto', background: ol.bg }}>
         {tab === 'users'     && <UsersPanel token={token} />}
         {tab === 'companies' && <CompaniesPanel token={token} />}
         {tab === 'news'      && <NewsPanel token={token} />}
