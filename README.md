@@ -163,7 +163,7 @@ Start the backend:
 npm run server
 ```
 
-### 3. Setup the Frontend
+### 3. Setup the Frontend 
 
 ```bash
 cd ../client
