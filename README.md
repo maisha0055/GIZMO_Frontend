@@ -42,6 +42,14 @@
 | Integrated Online Interviews — real-time viva/interview sessions | 🔄 In Progress |
 | Multi-Company Messaging & Chat — secure real-time communication | 🔄 In Progress |
 
+### 🛡️ For System Admin
+| Feature | Status |
+|---|---|
+| User & Company Management — ban/unban fraudulent accounts | ✅ |
+| Content Management — publish and manage News & Industry Journals | ✅ |
+| Report Resolution — review and act on user/company reports | ✅ |
+| Secure Admin Dashboard — protected by dedicated credentials | ✅ |
+
 ### 🎯 For Job Seekers
 | Feature | Status |
 |---|---|
@@ -50,7 +58,8 @@
 | Smart Resume Upload & Parsing — auto-extract skills and experience | ✅ |
 | Comprehensive Application History — track applied jobs and outcomes | ✅ |
 | Emergency Contact Management — store emergency contacts securely | ✅ |
-| Latest Job News & Industry Journals — stay updated with the job market | 🔄 In Progress |
+| Latest Job News & Industry Journals — stay updated with the job market | ✅ |
+| Reporting System — report suspicious companies/applicants | ✅ |
 
 ---
 
@@ -104,7 +113,10 @@ GIZMO/
 │   │   │   ├── ManageJobs.jsx
 │   │   │   ├── ViewApplications.jsx
 │   │   │   ├── Interview.jsx
-│   │   │   └── EmergencyContact.jsx
+│   │   │   ├── EmergencyContact.jsx
+│   │   │   ├── AdminLogin.jsx
+│   │   │   ├── AdminDashboard.jsx
+│   │   │   └── NewsPage.jsx
 │   │   └── context/        # React context for global state
 │   └── package.json
 │
@@ -154,6 +166,9 @@ CLERK_WEBHOOK_SECRET=your_clerk_webhook_secret
 CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
 CLERK_SECRET_KEY=your_clerk_secret_key
 JWT_SECRET=your_jwt_secret
+ADMIN_EMAIL=admin@gizmo.com
+ADMIN_PASSWORD=your_admin_password
+ADMIN_JWT_SECRET=your_admin_jwt_secret
 FRONTEND_URL=http://localhost:5173
 ```
 
@@ -199,6 +214,13 @@ The app will be running at `http://localhost:5173`.
 - Register your company with name, email, password, and logo
 - Log in via the **Recruiter Login** portal on the homepage
 - Post and manage jobs, review and decide on applicants
+- Report suspicious applicants
+
+### System Admin
+- Access via `/admin/login`
+- Manage all users and companies (Ban/Unban)
+- Publish/Delete News and Journals
+- Resolve reports submitted by users/companies
 
 ---
 
@@ -222,6 +244,21 @@ The app will be running at `http://localhost:5173`.
 | `POST` | `/api/users/apply` | Apply for a job |
 | `GET` | `/api/users/applications` | Get user's application history |
 | `POST` | `/api/users/update-resume` | Upload/update resume |
+| `POST` | `/api/reports` | Submit a report (User or Company) |
+
+### 🛡️ Admin Endpoints (Protected)
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/api/admin/login` | Admin authentication |
+| `GET` | `/api/admin/users` | List all users |
+| `PUT` | `/api/admin/ban-user/:id` | Ban a user |
+| `GET` | `/api/admin/companies` | List all companies |
+| `PUT` | `/api/admin/ban-company/:id` | Ban a company |
+| `POST` | `/api/admin/news` | Publish news/journal |
+| `GET` | `/api/admin/news` | Get all news (Public) |
+| `DELETE` | `/api/admin/news/:id` | Delete news |
+| `GET` | `/api/admin/reports` | View all reports |
+| `PUT` | `/api/admin/resolve-report/:id` | Mark report as resolved |
 
 ---
 
