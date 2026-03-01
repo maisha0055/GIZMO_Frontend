@@ -260,14 +260,6 @@ The app will be running at `http://localhost:5173`.
 | `GET` | `/api/admin/reports` | View all reports |
 | `PUT` | `/api/admin/resolve-report/:id` | Mark report as resolved |
 
----
-
-## 🖼️ Screenshots
-
-> *Coming soon — UI screenshots and demo GIFs*
-
----
-
 
 ---
 
@@ -287,3 +279,4 @@ This project is licensed under the **ISC License**.
 <div align="center">
   Made with ❤️ using the MERN Stack
 </div>
+
